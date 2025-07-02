@@ -1,4 +1,4 @@
-% scad_gamp_lambda_annealing.m
+% mcp_gamp_lambda_annealing.m
 function MCP_AMP_lambdaAnnealing()
     rng(42);
     %% Parameters
