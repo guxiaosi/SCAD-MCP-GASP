@@ -2,8 +2,8 @@
 function MCP_AMP_lambdaAnnealing()
     rng(42);
     %% Parameters
-    N          = 10000;
-    alpha      = 0.631;
+    N          = 2000;
+    alpha      = 0.625;
     M          = round(alpha * N);
     rho        = 0.4;
     sigma      = 1.0;
@@ -31,6 +31,7 @@ function MCP_AMP_lambdaAnnealing()
     %% Allocate storage for all iterations across all lambdas
     all_mse = [];
     all_overlap = [];
+    lambda_boundaries = [];
     %% Lambda annealing loop
     lambda = lambda_init;
     fprintf('lambda\tIter\tMSE\t\tOverlap\n');
@@ -63,13 +64,31 @@ function MCP_AMP_lambdaAnnealing()
         mse = mean((hatx - X).^2);
         overlap = (hatx' * X) / (norm(hatx) * norm(X));
         fprintf('%.3f\t%d\t%.4e\t%.4f\n', lambda, t, mse, overlap);
-
+        lambda_boundaries = [lambda_boundaries; length(all_mse)];
         lambda = lambda - lambda_step;
     end
-    %% Optionally, plot or print full histories
+    %% Plot
     figure;
-    subplot(2,1,1); plot(all_mse, 'LineWidth', 1.2); title('MSE over all iterations'); xlabel('Iteration'); ylabel('MSE');
-    subplot(2,1,2); plot(all_overlap, 'LineWidth', 1.2); title('Overlap over all iterations'); xlabel('Iteration'); ylabel('Overlap');
+    subplot(2,1,1); hold on;
+    plot(all_mse, 'b-', 'LineWidth', 1.2);
+    for i = 1:length(lambda_boundaries)
+        xline(lambda_boundaries(i), 'k--');
+    end
+    title(sprintf('MCP-AMP under $\\lambda$-annealing (N=%d, $\\alpha=%.3f$, $\\rho=%.1f$, $\\sigma^2=%.1f$, $a=%.1f$)', ...
+        N, alpha, rho, sigma, a), 'Interpreter', 'latex','FontSize', 18);
+    xlabel('Iteration', 'Interpreter', 'latex','FontSize', 18);
+    ylabel('MSE', 'Interpreter', 'latex','FontSize', 18);
+
+
+    subplot(2,1,2); hold on;
+    plot(all_overlap, 'r-', 'LineWidth', 1.2);
+    for i = 1:length(lambda_boundaries)
+        xline(lambda_boundaries(i), 'k--');
+    end
+    title(sprintf('MCP-AMP under $\\lambda$-annealing (N=%d, $\\alpha=%.3f$, $\\rho=%.1f$, $\\sigma^2=%.1f$, $a=%.1f$)', ...
+        N, alpha, rho, sigma, a), 'Interpreter', 'latex','FontSize', 18);
+    xlabel('Iteration', 'Interpreter', 'latex','FontSize', 18);
+    ylabel('Overlap', 'Interpreter', 'latex','FontSize', 18);
 end
 
 function x = f_hatx_MCP(A, B, lambda, a)
