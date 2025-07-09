@@ -2,12 +2,12 @@
 clear; clc;
 
 % Parameters
-rho     = 0.32;
+rho     = 0.4;
 sigma   = 1.0;
 bar_x   = 0.0;
-alpha   = 0.5;
-lambda  = 0.4;
-a_SCAD  = 3;
+alpha   = 0.690;
+lambda  = 0.483;
+a_SCAD  = 3.7;
 maxIter = 400;
 eps_tol = 1e-6;
 N_mc    = 10000;  % Monte Carlo samples
@@ -51,15 +51,21 @@ for k = 1:num_init
 
     % Draw trajectory
     quiver(chi_path(1:end-1), eps_path(1:end-1), ...
-           diff(chi_path), diff(eps_path), 0, 'r', 'LineWidth', 0.5, ...
-           'MaxHeadSize', 0.5, 'AutoScale', 'off', 'Color', [1 0 0 0.3]);
-    plot(chi_path(end), eps_path(end), 'ko', 'MarkerSize', 6, 'MarkerFaceColor', 'k');
+           diff(chi_path), diff(eps_path), ...
+           'Color', [0.5 0.5 0.5 0.3], ...   % gray with transparency
+           'LineWidth', 1.2, ...
+           'MaxHeadSize', 0.5, ...
+           'AutoScale', 'on', ...
+           'AutoScaleFactor', 1);         % increase arrow length
+    plot(chi_path(end), eps_path(end), 'r*', ...
+     'MarkerSize', 10, ...
+     'LineWidth', 2);  % red star at endpoint
 end
 
 xlabel('$\tilde{\chi}$', 'Interpreter', 'latex', 'FontSize', 20);
 ylabel('$\epsilon$', 'Interpreter', 'latex', 'FontSize', 20);
-title(sprintf('SCAD-SE $\\rho=%.2f,\\ \\sigma^2=%.2f,\\ \\bar{x}=%.2f,\\ \\alpha=%.2f,\\ a=%.2f,\\ \\lambda=%.2f$', ...
-      rho, sigma, bar_x, alpha, a_SCAD, lambda), 'Interpreter', 'latex', 'FontSize', 20);
+title(sprintf('SCAD-SE $\\rho=%.2f,\\ \\alpha=%.2f,\\ \\bar{x}=%.2f,\\ \\sigma^2=%.2f,\\ a=%.2f,\\ \\lambda=%.2f$', ...
+      rho, alpha, bar_x, sigma, a_SCAD, lambda), 'Interpreter', 'latex', 'FontSize', 20);
 xlim([0, 0.4]); ylim([0, 0.4]);
 grid on; set(gca, 'FontSize', 18);
 hold off;
@@ -69,7 +75,6 @@ function x = scad_denoise_vec(A, B, lambda, a)
     absB = abs(B);
     x = zeros(size(B));
 
-    I = absB <= lambda;
     II = absB > lambda & absB <= lambda * (1 + A);
     III = absB > lambda * (1 + A) & absB <= a * lambda * A;
     IV = absB > a * lambda * A;
